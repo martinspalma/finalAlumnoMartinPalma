@@ -1,57 +1,42 @@
 import fs from 'fs'
+import ArchivoPersistencia from './archivoPersistencia'
 
-class ModelFile {
-    #archivoDeElementos
-
+class ModelFile extends ArchivoPersistencia{
+    
     constructor() {
 
-        this.#archivoDeElementos = 'elementos.json'
-    }
-
-//-----------------------------------------------------------------------
-
-    #leerArchivo = async ruta => {
-        let archivo = []
-        try {
-            archivo = JSON.parse(await fs.promises.readFile(ruta, 'utf-8'))
-        } catch { }
-        return archivo
-    }
-
-    #escribirArchivo = async (ruta, texto) => {
-        await fs.promises.writeFile(ruta, JSON.stringify(texto, null, '\t'))
+        super('./data/usuarios.json')
     }
 
 
-//-----------------------------------------------------------------------
     obtenerElemento = async (id) => {
 
-        const elementos = await this.#leerArchivo(this.#archivoDeElementos)
+        const elementos = await this.leer()
         const elementoBuscado = elementos.find(e => e.id === id)
         return elementoBuscado || {}
     }
 
     obtenerElementos = async () => {
-        return await this.#leerArchivo(this.#archivoDeElementos) || {}
+        return await this.leer() || {}
     }
 
     guardarElementos = async (elemento) => {
-        const elementos = await this.#leerArchivo(this.#archivoDeElementos)
+        const elementos = await this.leer()
         elemento.id = String(parseInt(elementos[elementos.length - 1]?.id || 0) + 1)
         elementos.push(elemento)
-        await this.#escribirArchivo(this.#archivoDeElementos, elementos)
+        await this.escribir(elementos)
         return elemento
     }
 
     modificarElemento = async (id, elemento) => {
-        const elementos = await this.#leerArchivo(this.#archivoDeElementos)
+        const elementos = await this.leer()
         const index = elementos.findIndex(e => e.id === id)
 
         if (index != -1) {
             const elementoAnterior = elementos[index]
             const elementoActualizado = { ...elementoAnterior, ...elemento }
             elementos.splice(index, 1, elementoActualizado)
-            await this.#escribirArchivo(this.#archivoDeElementos, elementos)
+            await this.escribir(elementos)
             return elementoActualizado
         }
         else {
@@ -61,12 +46,12 @@ class ModelFile {
     }
 
     eliminarElementos = async (id) => {
-        const elementos = await this.#leerArchivo(this.#archivoDeElementos)
+        const elementos = await this.leer()
         const index = elementos.findIndex(e => e.id === id)
 
         if (index != -1) {
             const elementoEliminado = elementos.splice(index, 1)[0]
-            await this.#escribirArchivo(this.#archivoDeElementos, elementos)
+            await this.escribir(elementos)
             return elementoEliminado
         }
         else {
