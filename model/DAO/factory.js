@@ -1,5 +1,6 @@
 import ModelMem from './modelMem.js'
 import ModelMongoDB from './modelMongoDB.js'
+import ModelFile from './modelFile.js'
 
 class ModelFactory {
 
@@ -8,6 +9,11 @@ class ModelFactory {
             case 'MEM':
                 console.log('******* Persiste en Memoria***********')
                 return new ModelMem()
+
+            case 'FILE':
+                console.log(`******* Persistiendo en Archivo (${entidad}) ***********`)
+                return new ModelFile()
+
 
             case 'MongoDB':
                 console.log('******* Persiste en MONGODB***********')

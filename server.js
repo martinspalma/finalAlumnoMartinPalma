@@ -17,7 +17,7 @@ app.use('/', express.static('public'))
 app.use(express.urlencoded({extended:true}))
 
 //--------------------API RESTFUL ----------------------------
-app.use('/zor/jugadores', new Router(this.#persistencia).start())
+app.use('/api/elementos', new Router(this.#persistencia).start())
 
 //------------------ SECTOR LISTEN----------------------------
 const port = this.#port 
