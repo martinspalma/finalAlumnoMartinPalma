@@ -1,5 +1,5 @@
 import ModelMem from './modelMem.js'
-import ModelMongoDB from './modelMongoDB.js'
+//import ModelMongoDB from './modelMongoDB.js'
 import ModelFile from './modelFile.js'
 
 class ModelFactory {
@@ -11,7 +11,7 @@ class ModelFactory {
                 return new ModelMem()
 
             case 'FILE':
-                console.log(`******* Persistiendo en Archivo (${entidad}) ***********`)
+                console.log(`******* Persistiendo en Archivo File ***********`)
                 return new ModelFile()
 
 

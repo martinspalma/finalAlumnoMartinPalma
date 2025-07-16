@@ -8,15 +8,20 @@ constructor (persistencia){
 }
 
 start (){
+    
     const router = express.Router()
 //GET
-router.get('/:id?', this.#cb.obtenerElementos)
+
+router.get('/:id?', this.#cb.obtenerLibros)
+
 //POST
-router.post('/', this.#cb.guardarElementos)
+router.post('/', this.#cb.guardarLibros)
 //PUT
 router.put('/:id', this.#cb.actualizarElementos)
 //DELETE
 router.delete('/:id', this.#cb.borrarElementos)
+//PATCH
+router.patch('/:id', this.#cb.cambiarEstadoLibro)
 //------------------ SECTOR endpoint por default--------------------------
 router.use(this.#cb.porError)
 

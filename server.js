@@ -15,9 +15,10 @@ const app= express()
 //-------------------MIDDLEWARES EXPRESS---------------------
 app.use('/', express.static('public'))
 app.use(express.urlencoded({extended:true}))
+app.use(express.json())
 
 //--------------------API RESTFUL ----------------------------
-app.use('/api/elementos', new Router(this.#persistencia).start())
+app.use('/libros', new Router(this.#persistencia).start())
 
 //------------------ SECTOR LISTEN----------------------------
 const port = this.#port 
