@@ -1,5 +1,5 @@
 import ModelFactory from '../model/DAO/factory.js'
-import { validar, validarActualizacionEstado } from './validaciones/elementos.js'
+import { validar } from './validaciones/elementos.js'
 
 
 
@@ -10,57 +10,47 @@ class Servicio {
 
     }
 
-    obtenerEstadisticas = async () => {
-        const elemento = await this.#model.obtenerElementos()
-        const cantidadTotal = elemento.length
+        
 
+    esNuevo = async (id) => {
 
-        const datosSondasIntermedios = elemento.reduce((acc, { id, temperatura }) => {
-            if (!acc[id]) {
-                acc[id] = { cantidad: 0, suma: 0 }
-            }
-            acc[id].cantidad += 1
-            acc[id].suma += temperatura
-
-            return acc
-        }, {});
-
-        const temperaturaSondas = Object.keys(datosSondasIntermedios).map(id => {
-            const { cantidad, suma } = datosSondasIntermedios[id];
-
-            const promedio = suma / cantidad;
-
-            return {
-                id: parseInt(id),
-                promedio: parseFloat(promedio.toFixed(2))
-            };
-        });
-        const promediosFormateados = temperaturaSondas
-            .map(sonda => `- ID: ${sonda.id}, Promedio: ${sonda.promedio}°C`)
-            .join('\n');
-
-        return `Cantidad total de elementos: ${cantidadTotal}\n\nPromedios por sonda:\n${promediosFormateados}`;
+        const aviones = await this.#model.obtenerElementos()
+        const idExiste = aviones.some(avion => avion.id === id)
+        return !idExiste;
     }
 
 
+    guardarCoordenadas = async (coordenadasAvion) => {
 
-    obtenerElementos = async (id) => {
-        if (id) {
-            const elemento = await this.#model.obtenerElemento(id)
-            return elemento || {}
-        }
-        else {
-            return await this.#model.obtenerElementos()
-        }
-    }
-
-    guardarLibro = async (elemento) => {
-
-
-        const val = validar(elemento)
+        const val = validar(coordenadasAvion)
         if (val.result) {
+            let condicion = await this.esNuevo(coordenadasAvion.id)
+            
+            let elementoNuevo=null
 
-            const elementoNuevo = await this.#model.guardarElemento(elemento)
+            if (condicion){                
+
+            elementoNuevo = await this.#model.guardarElemento(coordenadasAvion)
+            }
+            else{
+                elementoNuevo = await this.#model.actualizarElementos(coordenadasAvion)
+            }
+
+            const limiteAlerta = 500
+            
+            const todosLosAviones = await this.#model.obtenerElementos()
+            const otrosAviones = todosLosAviones.filter(avion => avion.id !== elementoNuevo.id)
+            
+            for (const otroAvion of otrosAviones) {
+            const distancia = this.calcularDistanciaAviones(elementoNuevo, otroAvion);
+
+            if (distancia < limiteAlerta) {
+                const mensajeAlerta = `¡PELIGRO DE COLISIÓN! Avión ${elementoNuevo.id} y Avión ${otroAvion.id} están a ${distancia.toFixed(2)}m de distancia.`;
+                console.error(mensajeAlerta);
+                
+            }
+        }    
+        
 
             return elementoNuevo
         }
@@ -69,52 +59,26 @@ class Servicio {
         }
     }
 
-    verificarSorteo = async () => {
-        const res = await fetch('https://libros.deno.dev/premios');
-        if (!res.ok) {
-            throw new Error(`Error externo: ${res.status}`);
+    obtenerElementos = async () => {
+        if (true) {
+            const aviones = await this.#model.obtenerElementos()
+            return aviones || {}
         }
-        const data = await res.json();
-        // Esperamos { sorteo: number, premio: boolean }
         
-        return data.premio;
     }
 
+    calcularDistanciaAviones(avion1, avion2) {
+    
+    const dx2 = Math.pow(avion1.xa - avion2.xa, 2);
+    const dy2 = Math.pow(avion1.ya - avion2.ya, 2);
+    const dz2 = Math.pow(avion1.za - avion2.za, 2);
 
-    actualizarElementos = async (elemento) => {
+    const distancia = Math.sqrt(dx2 + dy2 + dz2);
 
-        const val = validarActualizacionEstado(elemento)
-        if (val.result) {
+    return distancia;
+}
 
-            const libroSolicitado = await this.#model.obtenerElementoPorCodigo(elemento.codigo)
-           
-            if (libroSolicitado.estado === "disponible") {
-                
-                if (elemento.estado === "alquilado" && this.verificarSorteo()) {
-                        this.#model.borrarElementos(elemento.codigo)
-                        return "es tuyo papa";
-                }
-
-                const elementoActualizado = await this.#model.actualizarElementos(elemento)
-                return elementoActualizado
-            }
-            else {
-                throw new Error("el libro no esta disponible")
-            }
-
-        }
-
-        else {
-            throw new Error(val.error.details[0].message)
-        }
-    }
-
-
-    borrarElementos = async (id) => {
-        const eliminado = await this.#model.borrarElementos(id)
-
-        return eliminado
-    }
+    
 
 
 

@@ -12,16 +12,12 @@ start (){
     const router = express.Router()
 //GET
 
-router.get('/:id?', this.#cb.obtenerLibros)
+router.get('/:id?', this.#cb.obtenerAviones)
 
 //POST
-router.post('/', this.#cb.guardarLibros)
-//PUT
-router.put('/:id', this.#cb.actualizarElementos)
-//DELETE
-router.delete('/:id', this.#cb.borrarElementos)
-//PATCH
-router.patch('/:id', this.#cb.cambiarEstadoLibro)
+router.post('/', this.#cb.guardarCoordenadas)
+
+
 //------------------ SECTOR endpoint por default--------------------------
 router.use(this.#cb.porError)
 

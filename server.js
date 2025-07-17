@@ -18,7 +18,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
 //--------------------API RESTFUL ----------------------------
-app.use('/libros', new Router(this.#persistencia).start())
+app.use('/aeropuerto', new Router(this.#persistencia).start())
 
 //------------------ SECTOR LISTEN----------------------------
 const port = this.#port 

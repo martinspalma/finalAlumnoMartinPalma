@@ -5,7 +5,7 @@ class ModelFile extends ArchivoPersistencia{
     
     constructor() {
 
-        super('./data/libros.json')
+        super('./data/aviones.json')
     }
 
 
@@ -16,12 +16,7 @@ class ModelFile extends ArchivoPersistencia{
         return (elementoBuscado.length > 0) ? elementoBuscado : { mensaje: `no existe con el id: ${id}`}
     }
 
-    obtenerElementoPorCodigo = async (id) => {
 
-        const elementos = await this.leer()
-        const elementoBuscado = elementos.find(e => e.codigo == id)
-        return elementoBuscado
-    }
 
     obtenerElementos = async () => {
         return await this.leer() || {}
@@ -29,8 +24,6 @@ class ModelFile extends ArchivoPersistencia{
 
     guardarElemento = async (elemento) => {
         const elementos = await this.leer()
-        elemento.id = String(parseInt(elementos[elementos.length - 1]?.id || 0) + 1)
-        elemento.timestamp = Date.now()
         elementos.push(elemento)
         await this.escribir(elementos)
         return elemento
@@ -38,7 +31,7 @@ class ModelFile extends ArchivoPersistencia{
 
     actualizarElementos = async (elemento) => {
         const elementos = await this.leer()
-        const index = elementos.findIndex(e => e.codigo === elemento.codigo)
+        const index = elementos.findIndex(e => e.id === elemento.id)
 
         if (index != -1) {
             const elementoAnterior = elementos[index]
@@ -48,25 +41,11 @@ class ModelFile extends ArchivoPersistencia{
             return elementoActualizado
         }
         else {
-            let mensaje = "error en la actualizacion del archivo"
+            let mensaje = "error en la actualizacion del avion"
             return mensaje
         }
     }
 
-    borrarElementos = async (id) => {
-        const elementos = await this.leer()
-        const index = elementos.findIndex(e => e.codigo === id)
-
-        if (index != -1) {
-            const elementoEliminado = elementos.splice(index, 1)[0]
-            await this.escribir(elementos)
-            return elementoEliminado
-        }
-        else {
-            let mensaje = "error al eliminar el archivo"
-            return mensaje
-        }
-    }
 
 
 }
